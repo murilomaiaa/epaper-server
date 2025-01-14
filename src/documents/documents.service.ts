@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { IUploadFile } from 'src/infra/storage/upload-file.interface';
+import { IUploadFile } from '../infra/storage/upload-file.interface';
 
 type CreateDto = {
   file: Express.Multer.File;
@@ -22,11 +22,17 @@ export class DocumentsService {
     return this.items.find((item) => item.id === id);
   }
 
-  async create({ file }: CreateDto) {
+  async create({ file, ...data }: CreateDto) {
     console.log('DocumentsService - Create');
     const fileName = `${Date.now()}-${file.originalname}`;
     await this.uploadProvider.execute(fileName, file.path);
-    const newPost = { id: randomUUID() };
+    const now = new Date();
+    const newPost = {
+      id: randomUUID(),
+      ...data,
+      createdAt: now,
+      updatedAt: now,
+    };
     this.items.push(newPost);
     return newPost;
   }
