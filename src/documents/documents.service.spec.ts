@@ -4,7 +4,10 @@ describe('DocumentsService', () => {
   let service: DocumentsService;
 
   beforeEach(() => {
-    service = new DocumentsService({ execute: jest.fn() });
+    service = new DocumentsService(
+      { execute: jest.fn() },
+      { create: jest.fn() },
+    );
   });
   it('should upload', async () => {
     const result = await service.create({

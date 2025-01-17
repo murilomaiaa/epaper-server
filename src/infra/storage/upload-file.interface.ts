@@ -1,3 +1,3 @@
 export abstract class IUploadFile {
-  abstract execute(fileName: string, filePath: string): Promise<void>;
+  abstract execute(fileName: string, filePath: string): Promise<string>;
 }

@@ -6,8 +6,12 @@ const contract = initContract();
 
 const DocumentSchema = z.object({
   id: z.string(),
-  name: z.string(),
   url: z.string(),
+  origin: z.string(),
+  type: z.string(),
+  issuer: z.string(),
+  taxValue: z.number(),
+  netValue: z.number(),
   updatedAt: z.date(),
   createdAt: z.date(),
 });

@@ -16,9 +16,19 @@ export class MinioUploadFile implements IUploadFile {
 
   async execute(fileName: string, filePath: string) {
     const bucket = 'rlv-m';
-    console.log(`MinioUploadFile - Uploading ${fileName} to ${bucket}`);
+    const exists = await this.client.bucketExists(bucket);
+    if (exists) {
+      console.log('Bucket ' + bucket + ' exists.');
+    } else {
+      await this.client.makeBucket(bucket, 'us-east-1');
+      console.log('Bucket ' + bucket + ' created in "us-east-1".');
+    }
+    console.log(
+      `MinioUploadFile - Uploading ${filePath} - ${fileName} to ${bucket}`,
+    );
+
     const response = await this.client.fPutObject(bucket, fileName, filePath);
-    console.log(response);
     console.log(`MinioUploadFile - File uploaded`);
+    return response.etag;
   }
 }

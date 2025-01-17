@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
 import { IUploadFile } from '../infra/storage/upload-file.interface';
+import { IDocumentsRepository } from '../infra/db/repositories/contracts/documents.repository.interface';
+import { Document } from './document.entity';
 
 type CreateDto = {
   file: Express.Multer.File;
@@ -13,27 +14,25 @@ type CreateDto = {
 
 @Injectable()
 export class DocumentsService {
-  private readonly items: Array<Record<string, any>>;
-
-  constructor(private readonly uploadProvider: IUploadFile) {
-    this.items = [];
-  }
+  constructor(
+    private readonly uploadProvider: IUploadFile,
+    private readonly repository: IDocumentsRepository,
+  ) {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getById(id: string) {
-    return this.items.find((item) => item.id === id);
+    return this.repository.findById(id);
   }
 
   async create({ file, ...data }: CreateDto) {
     console.log('DocumentsService - Create');
     const fileName = `${Date.now()}-${file.originalname}`;
-    await this.uploadProvider.execute(fileName, file.path);
-    const now = new Date();
-    const newPost = {
-      id: randomUUID(),
+    const url = await this.uploadProvider.execute(fileName, file.path);
+    const document = new Document({
       ...data,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.items.push(newPost);
-    return newPost;
+      url,
+    });
+    await this.repository.create(document);
+    console.log('DocumentsService - Created');
+    return document;
   }
 }

@@ -24,20 +24,20 @@ export class DocumentsController implements NestControllerInterface<typeof c> {
     @UploadedFile() file: Express.Multer.File,
   ) {
     console.log(`DocumentsController - Uploading file ${file.originalname}`);
-    await this.documentsService.create({
+    const response = await this.documentsService.create({
       ...body,
       file,
     });
-    return { status: 201 as const, body: { body, file } as any };
+    return { status: 201 as const, body: response };
   }
 
   @TsRest(c.getPost)
   async getPost(@TsRestRequest() { params: { id } }: RequestShapes['getPost']) {
-    const post = await this.documentsService.getById(id);
+    const document = await this.documentsService.getById(id);
 
-    if (!post) {
+    if (!document) {
       return { status: 204 as const, body: null };
     }
-    return { status: 200 as const, body: post as any };
+    return { status: 200 as const, body: document as any };
   }
 }
