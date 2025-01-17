@@ -76,7 +76,6 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "runInBand": true
+    "testEnvironment": "node"
   }
 }
