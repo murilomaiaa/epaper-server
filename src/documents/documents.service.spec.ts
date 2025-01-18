@@ -6,7 +6,13 @@ describe('DocumentsService', () => {
   beforeEach(() => {
     service = new DocumentsService(
       { execute: jest.fn() },
-      { create: jest.fn(), findById: jest.fn() },
+      {
+        create: jest.fn(),
+        findById: jest.fn(),
+        findMany: jest.fn(),
+        softDelete: jest.fn(),
+        update: jest.fn(),
+      },
     );
   });
   it('should upload', async () => {

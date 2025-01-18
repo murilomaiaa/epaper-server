@@ -1,5 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Document } from '../../../documents/document.entity';
-import { IDocumentsRepository } from './contracts/documents.repository.interface';
+import {
+  IDocumentsRepository,
+  SearchParams,
+} from './contracts/documents.repository.interface';
 import { db } from '..';
 import { documentsTable } from '../schema';
 import { eq } from 'drizzle-orm';
@@ -19,6 +23,7 @@ export class DocumentsRepository implements IDocumentsRepository {
       taxValue: taxValue.toString(),
       createdAt: createdAt.toISOString(),
       updatedAt: updatedAt.toISOString(),
+      deletedAt: null,
     };
 
     await db.insert(documentsTable).values(d);
@@ -46,5 +51,16 @@ export class DocumentsRepository implements IDocumentsRepository {
       createdAt: new Date(document.createdAt),
       updatedAt: new Date(document.updatedAt),
     });
+  }
+
+  async findMany(_searchParams: SearchParams): Promise<Document[]> {
+    throw new Error('Method not implemented.');
+  }
+
+  async softDelete(_id: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  async update(_document: Document): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 }

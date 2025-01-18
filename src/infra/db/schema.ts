@@ -10,4 +10,5 @@ export const documentsTable = pgTable('documents', {
   netValue: decimal().notNull(),
   createdAt: date().notNull(),
   updatedAt: date().notNull(),
+  deletedAt: date(),
 });
