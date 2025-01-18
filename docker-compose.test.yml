@@ -34,3 +34,4 @@ services:
       MINIO_ENDPOINT: 'play.min.io'
       MINIO_BUCKET: 'rlv-m'
       MINIO_PORT: '9000'
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/postgres'
