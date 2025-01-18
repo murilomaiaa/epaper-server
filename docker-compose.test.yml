@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres
+    container_name: postgres-test
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: rlv
+      POSTGRES_DATABASE: rlv
+      POSTGRES_PASSWORD: postgres
+    # restart: unless-stopped
+
+  test-base:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: test/Dockerfile.test
+    volumes:
+      - ./test:/app/test:ro
+
+  test-e2e:
+    extends: test-base
+    command: npm run test:e2e
+    depends_on:
+      - postgres-test
+    volumes:
+      - ./coverage-integration:/app/coverage-integration:rw
+    environment:
+      NODE_ENV: 'test'
+      MINIO_ACCESS_KEY: 'Q3AM3UQ867SPQQA43P2F'
+      MINIO_SECRET_KEY: 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG'
+      MINIO_ENDPOINT: 'play.min.io'
+      MINIO_BUCKET: 'rlv-m'
+      MINIO_PORT: '9000'
