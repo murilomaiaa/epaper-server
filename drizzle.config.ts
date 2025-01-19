@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import 'dotenv-safe/config';
 import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
