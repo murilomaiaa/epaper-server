@@ -17,8 +17,11 @@ COPY . .
 # Build the NestJS application
 RUN npm run build
 
+# Run migrations
+RUN npx drizzle-kit generate && npx drizzle-kit migrate
+
 # Expose the application port
 EXPOSE 3000
 
 # Command to run the application
-CMD ["npx","drizzle-kit","generate","&&","npx","drizzle-kit","migrate","&&","npm", "start"]
+CMD ["npm", "start"]
