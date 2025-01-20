@@ -22,6 +22,7 @@ export class Document {
   netValue: number;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date;
 
   constructor({
     id,

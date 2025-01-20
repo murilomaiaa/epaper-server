@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { IUploadFile } from '../infra/storage/upload-file.interface';
 import {
   IDocumentsRepository,
@@ -6,13 +6,20 @@ import {
 } from '../infra/db/repositories/contracts/documents.repository.interface';
 import { Document } from './document.entity';
 
-type CreateDto = {
-  file: Express.Multer.File;
+type BaseDto = {
   origin: string;
   type: string;
   issuer: string;
   taxValue: number;
   netValue: number;
+};
+
+type CreateDto = BaseDto & {
+  file: Express.Multer.File;
+};
+
+type UpdateDto = BaseDto & {
+  id: string;
 };
 
 @Injectable()
@@ -51,5 +58,29 @@ export class DocumentsService {
     });
 
     return result;
+  }
+
+  async update(data: UpdateDto) {
+    console.log('DocumentsService - Update');
+    const document = await this.repository.findById(data.id);
+    if (!document) {
+      throw new NotFoundException(data.id);
+    }
+
+    const updatedDocument = new Document({
+      ...document,
+      ...data,
+      updatedAt: new Date(),
+    });
+
+    await this.repository.update(updatedDocument);
+
+    return updatedDocument;
+  }
+
+  async delete(id: string) {
+    console.log('DocumentsService - Update');
+
+    await this.repository.softDelete(id);
   }
 }

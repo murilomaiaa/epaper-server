@@ -21,17 +21,8 @@ const PaginatedDocumentsSchema = z.object({
   total: z.number(),
 });
 
-const transformMoney = (value: string): number => {
-  const parsed = Number(value);
-  if (Number.isNaN(parsed)) {
-    console.log('invalid');
-    throw new Error('Not valid input ' + value);
-  }
-  return parsed;
-};
-
 export const documentContract = contract.router({
-  createPost: {
+  createUpdate: {
     method: 'POST',
     path: '/documents',
     contentType: 'multipart/form-data',
@@ -42,8 +33,8 @@ export const documentContract = contract.router({
       origin: z.string(),
       type: z.string(),
       issuer: z.string(),
-      taxValue: z.string().transform(transformMoney),
-      netValue: z.string().transform(transformMoney),
+      taxValue: z.coerce.number(),
+      netValue: z.coerce.number(),
       file: z.any(),
     }),
     summary: 'Upload document',
@@ -77,5 +68,20 @@ export const documentContract = contract.router({
       createdAt: z.coerce.date().optional(),
     }),
     summary: 'Get documents',
+  },
+  updateDocument: {
+    method: 'PUT',
+    path: '/documents/:id',
+    responses: {
+      201: DocumentSchema,
+    },
+    body: z.object({
+      origin: z.string(),
+      type: z.string(),
+      issuer: z.string(),
+      taxValue: z.coerce.number(),
+      netValue: z.coerce.number(),
+    }),
+    summary: 'Update document',
   },
 });
