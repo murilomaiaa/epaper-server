@@ -16,6 +16,11 @@ const DocumentSchema = z.object({
   createdAt: z.date(),
 });
 
+const PaginatedDocumentsSchema = z.object({
+  data: z.array(DocumentSchema),
+  total: z.number(),
+});
+
 const transformMoney = (value: string): number => {
   const parsed = Number(value);
   if (Number.isNaN(parsed)) {
@@ -43,13 +48,34 @@ export const documentContract = contract.router({
     }),
     summary: 'Upload document',
   },
-  getPost: {
+  getDocument: {
     method: 'GET',
     path: `/documents/:id`,
     responses: {
       200: DocumentSchema,
       204: null,
     },
-    summary: 'Get a post by id',
+    summary: 'Get a document by id',
+  },
+  getDocuments: {
+    method: 'GET',
+    path: '/documents',
+    responses: {
+      200: PaginatedDocumentsSchema,
+    },
+    query: z.object({
+      limit: z.coerce.number().optional(),
+      offset: z.coerce.number().optional(),
+      id: z.string().optional(),
+      url: z.string().optional(),
+      origin: z.string().optional(),
+      type: z.string().optional(),
+      issuer: z.string().optional(),
+      taxValue: z.coerce.number().optional(),
+      netValue: z.coerce.number().optional(),
+      updatedAt: z.coerce.date().optional(),
+      createdAt: z.coerce.date().optional(),
+    }),
+    summary: 'Get documents',
   },
 });

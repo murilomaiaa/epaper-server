@@ -1,6 +1,6 @@
 
 # Use the official Node.js image as the base image
-FROM node:22-slim
+FROM node:22
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
@@ -9,19 +9,19 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install the application dependencies
-RUN npm ci
+RUN npm ci --production
 
 # Copy the rest of the application files
 COPY . .
 
-# Build the NestJS application
-RUN npm run build
-
 # Run migrations
 RUN npx drizzle-kit generate && npx drizzle-kit migrate
+
+# Build the NestJS application
+RUN npm run build
 
 # Expose the application port
 EXPOSE 3000
 
 # Command to run the application
-CMD ["npm", "start"]
+CMD ["node", "dist/src/main.js"]

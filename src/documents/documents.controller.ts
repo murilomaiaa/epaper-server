@@ -31,13 +31,24 @@ export class DocumentsController implements NestControllerInterface<typeof c> {
     return { status: 201 as const, body: response };
   }
 
-  @TsRest(c.getPost)
-  async getPost(@TsRestRequest() { params: { id } }: RequestShapes['getPost']) {
+  @TsRest(c.getDocument)
+  async getDocument(
+    @TsRestRequest() { params: { id } }: RequestShapes['getDocument'],
+  ) {
     const document = await this.documentsService.getById(id);
 
     if (!document) {
       return { status: 204 as const, body: null };
     }
-    return { status: 200 as const, body: document as any };
+    return { status: 200 as const, body: document };
+  }
+
+  @TsRest(c.getDocuments)
+  async getDocuments(
+    @TsRestRequest() { query }: RequestShapes['getDocuments'],
+  ) {
+    const result = await this.documentsService.findMany(query);
+
+    return { status: 200 as const, body: result };
   }
 }

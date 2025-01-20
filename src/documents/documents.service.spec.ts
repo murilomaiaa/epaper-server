@@ -15,7 +15,7 @@ describe('DocumentsService', () => {
       },
     );
   });
-  it('should upload', async () => {
+  it('should create', async () => {
     const result = await service.create({
       file: {} as any,
       issuer: 'Issuer',

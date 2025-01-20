@@ -4,6 +4,9 @@ import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { db } from '../src/infra/db';
+import { documentsTable } from '../src/infra/db/schema';
+import { makeDocumentsDb } from './mock/documents.mock';
 
 describe('PostController (e2e)', () => {
   let app: INestApplication;
@@ -53,5 +56,25 @@ describe('PostController (e2e)', () => {
     expect(response.body.issuer).toEqual('Issuer Name');
     expect(response.body.taxValue).toEqual(100.25);
     expect(response.body.netValue).toEqual(1000);
+  });
+
+  it('GET /documents/?query', async () => {
+    const issuer = Date.now().toString();
+    const count = await db.$count(documentsTable);
+
+    await db
+      .insert(documentsTable)
+      .values([
+        makeDocumentsDb({ type: 'nfs', issuer }),
+        makeDocumentsDb({ type: 'nfs', issuer }),
+        makeDocumentsDb({ type: 'nfe', issuer }),
+      ]);
+
+    const response = await request(app.getHttpServer())
+      .get(`/documents/?issuer=${issuer}`)
+      .expect(200);
+
+    expect(response.body.data.length).toBe(3);
+    expect(response.body.total).toBe(count + 3);
   });
 });
