@@ -9,10 +9,13 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install the application dependencies
-RUN npm ci
+RUN npm ci --production
 
 # Copy the rest of the application files
 COPY . .
+
+# Run migrations
+RUN npx drizzle-kit generate && npx drizzle-kit migrate
 
 # Build the NestJS application
 RUN npm run build
@@ -21,4 +24,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Command to run the application
-CMD ["npm", "start"]
+CMD ["node", "dist/src/main.js"]

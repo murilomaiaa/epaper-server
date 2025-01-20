@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { IUploadFile } from '../infra/storage/upload-file.interface';
-import { IDocumentsRepository } from '../infra/db/repositories/contracts/documents.repository.interface';
+import {
+  IDocumentsRepository,
+  SearchParams,
+} from '../infra/db/repositories/contracts/documents.repository.interface';
 import { Document } from './document.entity';
 
 type CreateDto = {
@@ -34,5 +37,19 @@ export class DocumentsService {
     await this.repository.create(document);
     console.log('DocumentsService - Created');
     return document;
+  }
+
+  async findMany({
+    limit = 10,
+    offset = 0,
+    ...searchParams
+  }: Partial<SearchParams>) {
+    const result = await this.repository.findMany({
+      ...searchParams,
+      limit,
+      offset,
+    });
+
+    return result;
   }
 }
