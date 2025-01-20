@@ -9,7 +9,7 @@ services:
       POSTGRES_DATABASE: rlv
       POSTGRES_PASSWORD: postgres
     restart: unless-stopped
-  
+
   app:
     build:
       context: .
