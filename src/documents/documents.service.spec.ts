@@ -30,7 +30,7 @@ describe('DocumentsService', () => {
   });
 
   it('should update', async () => {
-    const document = makeDocument();
+    const document = makeDocument({ createdAt: new Date('2020-01-01') });
     await repository.create(document);
 
     await service.update(document);

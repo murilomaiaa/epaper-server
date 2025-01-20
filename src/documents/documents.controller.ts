@@ -33,12 +33,20 @@ export class DocumentsController implements NestControllerInterface<typeof c> {
 
   @TsRest(c.updateDocument)
   async updateDocument(
-    @TsRestRequest() { params: { id } }: RequestShapes['updateDocument'],
+    @TsRestRequest() { params: { id }, body }: RequestShapes['updateDocument'],
   ) {
     console.log(`DocumentsController - Updating file data for file ${id}`);
-    // const response = await this.documentsService.update(id, body);
-    // return { status: 201 as const, body: response };
-    return { status: 200 as const, body: null as any };
+    const response = await this.documentsService.update({ ...body, id });
+    return { status: 200 as const, body: response };
+  }
+
+  @TsRest(c.deleteDocument)
+  async deleteDocument(
+    @TsRestRequest() { params: { id } }: RequestShapes['deleteDocument'],
+  ) {
+    console.log(`DocumentsController - Delete file data for file ${id}`);
+    await this.documentsService.delete(id);
+    return { status: 204 as const, body: null };
   }
 
   @TsRest(c.getDocument)

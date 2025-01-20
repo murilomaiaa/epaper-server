@@ -84,4 +84,12 @@ export const documentContract = contract.router({
     }),
     summary: 'Update document',
   },
+  deleteDocument: {
+    method: 'DELETE',
+    path: '/documents/:id',
+    responses: {
+      204: null,
+    },
+    summary: 'Delete document',
+  },
 });

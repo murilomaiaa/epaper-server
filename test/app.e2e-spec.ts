@@ -101,4 +101,14 @@ describe('PostController (e2e)', () => {
     expect(response.body.taxValue).toEqual(100);
     expect(response.body.netValue).toEqual(1000);
   });
+
+  it('DELETE /documents/:id', async () => {
+    const id = randomUUID();
+    const document = makeDocumentsDb({ id });
+    await db.insert(documentsTable).values([document]);
+
+    await request(app.getHttpServer()).delete(`/documents/${id}`).expect(204);
+
+    await request(app.getHttpServer()).get(`/documents/${id}`).expect(204);
+  });
 });
