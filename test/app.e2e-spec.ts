@@ -77,4 +77,38 @@ describe('PostController (e2e)', () => {
     expect(response.body.data.length).toBe(3);
     expect(response.body.total).toBe(count + 3);
   });
+
+  it('PUT /documents/:id', async () => {
+    const id = randomUUID();
+    const document = makeDocumentsDb({ id });
+    await db.insert(documentsTable).values([document]);
+
+    const response = await request(app.getHttpServer())
+      .post(`/documents/${id}`)
+      .send({
+        origin: 'scanned',
+        type: 'nfs',
+        issuer: 'Name',
+        taxValue: 100,
+        netValue: 1000,
+      })
+      .expect(200);
+
+    expect(response.body.updatedAt).not.toEqual(document.createdAt);
+    expect(response.body.origin).toEqual('scanned');
+    expect(response.body.type).toEqual('nfs');
+    expect(response.body.issuer).toEqual('Name');
+    expect(response.body.taxValue).toEqual(100);
+    expect(response.body.netValue).toEqual(1000);
+  });
+
+  it('DELETE /documents/:id', async () => {
+    const id = randomUUID();
+    const document = makeDocumentsDb({ id });
+    await db.insert(documentsTable).values([document]);
+
+    await request(app.getHttpServer()).delete(`/documents/${id}`).expect(204);
+
+    await request(app.getHttpServer()).get(`/documents/${id}`).expect(204);
+  });
 });

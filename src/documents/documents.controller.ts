@@ -17,10 +17,10 @@ type RequestShapes = NestRequestShapes<typeof c>;
 export class DocumentsController implements NestControllerInterface<typeof c> {
   constructor(private readonly documentsService: DocumentsService) {}
 
-  @TsRest(c.createPost)
+  @TsRest(c.createUpdate)
   @UseInterceptors(FileInterceptor('file', { dest: '/tmp/' }))
-  async createPost(
-    @TsRestRequest() { body }: RequestShapes['createPost'],
+  async createUpdate(
+    @TsRestRequest() { body }: RequestShapes['createUpdate'],
     @UploadedFile() file: Express.Multer.File,
   ) {
     console.log(`DocumentsController - Uploading file ${file.originalname}`);
@@ -29,6 +29,24 @@ export class DocumentsController implements NestControllerInterface<typeof c> {
       file,
     });
     return { status: 201 as const, body: response };
+  }
+
+  @TsRest(c.updateDocument)
+  async updateDocument(
+    @TsRestRequest() { params: { id }, body }: RequestShapes['updateDocument'],
+  ) {
+    console.log(`DocumentsController - Updating file data for file ${id}`);
+    const response = await this.documentsService.update({ ...body, id });
+    return { status: 200 as const, body: response };
+  }
+
+  @TsRest(c.deleteDocument)
+  async deleteDocument(
+    @TsRestRequest() { params: { id } }: RequestShapes['deleteDocument'],
+  ) {
+    console.log(`DocumentsController - Delete file data for file ${id}`);
+    await this.documentsService.delete(id);
+    return { status: 204 as const, body: null };
   }
 
   @TsRest(c.getDocument)

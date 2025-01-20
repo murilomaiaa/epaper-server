@@ -7,7 +7,7 @@ import {
 } from './contracts/documents.repository.interface';
 import { db } from '..';
 import { documentsTable } from '../schema';
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq, ne, sql } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 
 export class DocumentsRepository implements IDocumentsRepository {
@@ -31,11 +31,36 @@ export class DocumentsRepository implements IDocumentsRepository {
     await db.insert(documentsTable).values(d);
   }
 
+  async update({
+    netValue,
+    taxValue,
+    createdAt,
+    updatedAt,
+    ...document
+  }: Document): Promise<void> {
+    console.log('DocumentsRepository - Update');
+    const d: typeof documentsTable.$inferSelect = {
+      ...document,
+      netValue: netValue.toString(),
+      taxValue: taxValue.toString(),
+      createdAt: createdAt.toISOString(),
+      updatedAt: updatedAt.toISOString(),
+      deletedAt: null,
+    };
+
+    await db.update(documentsTable).set(d).where(eq(documentsTable.id, d.id));
+  }
+
   async findById(id: string): Promise<Document | undefined> {
     const documents = await db
       .select()
       .from(documentsTable)
-      .where(eq(documentsTable.id, id))
+      .where(
+        and(
+          sql`${documentsTable.createdAt} IS NOT NULL`,
+          eq(documentsTable.id, id),
+        ),
+      )
       .limit(1);
 
     if (documents.length === 0) {
@@ -57,7 +82,7 @@ export class DocumentsRepository implements IDocumentsRepository {
       .orderBy(asc(documentsTable.createdAt))
       .limit(limit)
       .offset(offset);
-    const count = db.$count(documentsTable);
+    const filters = [sql`${documentsTable.createdAt} IS NOT NULL`];
 
     const tbColumnMap: Record<keyof Document, any> = {
       id: documentsTable.id,
@@ -69,22 +94,28 @@ export class DocumentsRepository implements IDocumentsRepository {
       type: documentsTable.type,
       updatedAt: documentsTable.updatedAt,
       url: documentsTable.url,
+      deletedAt: documentsTable.deletedAt,
     };
 
     Object.entries(searchParams).forEach(([key, value]) => {
-      console.log(key, value);
       const tbKey = tbColumnMap[key as keyof Document];
-      select.where(eq(tbKey, value.toString()));
+      filters.push(eq(tbKey, value.toString()));
     });
+    select.where(and(...filters));
+
+    const count = db.$count(documentsTable, and(...filters));
+
     const [data, total] = await Promise.all([select, count]);
     return { data: data.map(this.mapToDocument), total };
   }
 
-  async softDelete(_id: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-  async update(_document: Document): Promise<void> {
-    throw new Error('Method not implemented.');
+  async softDelete(id: string): Promise<void> {
+    console.log('DocumentsRepository - Delete');
+
+    await db
+      .update(documentsTable)
+      .set({ deletedAt: sql`NOW()` })
+      .where(eq(documentsTable.id, id));
   }
 
   private mapToDocument(document: typeof documentsTable.$inferSelect) {
